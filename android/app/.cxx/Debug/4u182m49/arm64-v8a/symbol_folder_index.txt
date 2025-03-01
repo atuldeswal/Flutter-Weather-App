@@ -1,0 +1,1 @@
+C:\practice\weather\build\app\intermediates\cxx\Debug\4u182m49\obj\arm64-v8a

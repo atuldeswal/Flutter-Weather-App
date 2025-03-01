@@ -1,0 +1,1 @@
+C:\practice\weather\build\app\intermediates\cxx\RelWithDebInfo\594v623s\obj\arm64-v8a
