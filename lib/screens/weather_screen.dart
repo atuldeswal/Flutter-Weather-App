@@ -28,13 +28,21 @@ class _WeatherScreenState extends State<WeatherScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize _weatherFuture immediately to prevent null errors
+    _weatherFuture = _weatherService.getWeatherByCity('London');
     _loadLastSearch();
   }
 
   Future<void> _loadLastSearch() async {
-    _cityName = await _weatherService.getLastSearch();
-    _recentSearches = await _weatherService.getRecentSearches();
-    _refreshWeather();
+    final lastCity = await _weatherService.getLastSearch();
+    final searches = await _weatherService.getRecentSearches();
+    
+    setState(() {
+      _cityName = lastCity;
+      _recentSearches = searches;
+      // Refresh weather with the loaded city
+      _weatherFuture = _weatherService.getWeatherByCity(_cityName);
+    });
   }
 
   void _refreshWeather() {
@@ -217,6 +225,15 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
             final weatherData = snapshot.data!;
 
+            // Create a current weather HourlyForecast with the correct types
+            final currentForecast = HourlyForecast(
+              time: DateTime.now(),
+              sky: weatherData.currentSky,
+              temp: weatherData.currentTemp,
+              humidity: weatherData.humidity,  // This is already an int as required by HourlyForecast
+              windSpeed: weatherData.windSpeed,
+            );
+
             return SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -228,15 +245,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       // Weather details card for the selected forecast
                       WeatherDetails(
                         forecast: _selectedForecastIndex == 0
-                            ? HourlyForecast(
-                                time: DateTime.now(),
-                                sky: weatherData.currentSky,
-                                temp: weatherData.currentTemp,
-                                humidity: weatherData.humidity,
-                                windSpeed: weatherData.windSpeed,
-                              )
-                            : weatherData
-                                .hourlyForecasts[_selectedForecastIndex - 1],
+                            ? currentForecast
+                            : weatherData.hourlyForecasts[_selectedForecastIndex - 1],
                         cityName: weatherData.cityName,
                       ),
                       const SizedBox(height: 30),
@@ -274,13 +284,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             if (index == 0) {
                               // Current weather
                               return HourlyForecastCard(
-                                forecast: HourlyForecast(
-                                  time: DateTime.now(),
-                                  sky: weatherData.currentSky,
-                                  temp: weatherData.currentTemp,
-                                  humidity: weatherData.humidity,
-                                  windSpeed: weatherData.windSpeed,
-                                ),
+                                forecast: currentForecast,
                                 isSelected: _selectedForecastIndex == 0,
                                 onTap: () {
                                   setState(() {
@@ -324,8 +328,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           AdditionalInfo(
                             icon: Icons.air,
                             label: 'Wind Speed',
-                            value:
-                                '${weatherData.windSpeed.toStringAsFixed(1)} m/s',
+                            value: '${weatherData.windSpeed.toStringAsFixed(1)} m/s',
                           ),
                           AdditionalInfo(
                             icon: Icons.compress,
