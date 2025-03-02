@@ -15,7 +15,7 @@ A beautifully designed weather application built with Flutter that provides real
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/Home Screen.png" alt="Home Screen" width="250"/>
+  <img src="screenshots/Home Screen.png" alt="Home Screen" width="250"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="screenshots/Search Screen.png" alt="Search Screen" width="250"/>
 </p>
 
